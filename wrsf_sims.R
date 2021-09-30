@@ -36,6 +36,7 @@ colnames(df_sims) <- name_df
 # Create raster
 r1 <- raster(nrows = 1000, ncols = 1000, xmn = -4000, xmx = 4000, ymn = -4000, ymx = 4000, 
              vals = as.factor(rep(1:2,500000)))
+crs(r1) <- "+proj=utm"
 
 # Record start time to monitor how long replicates take to compute
 sTime <- Sys.time()
