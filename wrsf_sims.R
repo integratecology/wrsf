@@ -1,6 +1,6 @@
 # PACKAGES ####
-library(ctmm)
 library(raster)
+library(ctmm)
 
 # ANALYSIS ####
 # Read job number from command line
@@ -35,7 +35,7 @@ colnames(df_sims) <- name_df
 
 # Create raster
 r1 <- raster(nrows = 1000, ncols = 1000, xmn = -4000, xmx = 4000, ymn = -4000, ymx = 4000, 
-             vals = as.factor(rep(1:2,(ncell(r1)/2))))
+             vals = as.factor(rep(1:2,500000)))
 
 # Record start time to monitor how long replicates take to compute
 sTime <- Sys.time()
@@ -45,7 +45,7 @@ print(sTime)
 for(i in 1:length(samp)){
   
   # Specify variables to manipulate sampling frequency while holding duration constant
-  nd <- 365 # number of days
+  nd <- 90 # number of days
   pd <- samp[i] # number of sampled points per day
   
   # Sampling schedule
@@ -60,19 +60,24 @@ for(i in 1:length(samp)){
   df$habitat <- as.factor(raster::extract(r1, sp))
   df$count <- ave(df$habitat==df$habitat, df$habitat, FUN=cumsum)
   df <- df[df$habitat==1 | df$count%%2,]
+  sim_sub <- subset(sim,row.names(sim) %in% row.names(df))
+  print("Simulated movement track created")
   
   # Fit the movement model to the simulated data
   fit <- ctmm.fit(sim, CTMM=mod, control=list(method="pNewton")) #
   fit_iid <- ctmm.fit(sim, CTMM=ctmm(isotropic=TRUE), control=list(method="pNewton")) #
+  print("Fitted movement model")
   
   # Calculate the UDs ###
-  ud <- akde(df, fit, weights=TRUE, trace=2)
-  ud_iid <- akde(df, fit_iid)
+  ud <- akde(sim_sub, fit, weights=TRUE)
+  ud_iid <- akde(sim_sub, fit_iid)
+  print("UDs created")
   
   # Fit the RSFs ###
-  rsf <- ctmm:::rsf.fit(df, UD=ud, R=list(test=r1), trace=TRUE, debias=TRUE)
-  rsf_iid <- ctmm:::rsf.fit(df, UD=ud_iid, R=list(test=r1), trace=TRUE, debias=TRUE, error=0.025)
-  
+  rsf <- ctmm:::rsf.fit(sim_sub, UD=ud, R=list(test=r1), trace=TRUE, debias=TRUE)
+  rsf_iid <- ctmm:::rsf.fit(sim_sub, UD=ud_iid, R=list(test=r1), trace=TRUE, debias=TRUE, error=0.025)
+  print("Fitted RSF")  
+
   eTime <- Sys.time()
   
   # Extract variables of interest ###
