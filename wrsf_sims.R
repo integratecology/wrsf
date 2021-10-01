@@ -12,13 +12,13 @@ sim_no <- args[1]
 ds <- 86400
 
 # Spatial variance in m^2
-sig <- 100000
+sig <- 200000
 
 # True 95% range area
 trueRngArea <- -2*log(0.05)*pi*sig
 
 # Specify an OUF model for simulation
-mod <- ctmm(tau=c(7*ds,ds/4), isotropic=TRUE, sigma=sig, mu=c(0,0))
+mod <- ctmm(tau=c(7*ds,ds/4), isotropic=TRUE, sigma=sig, mu=c(1196500,5711000))
 
 # Simulation with varying sampling interval ####
 
@@ -34,9 +34,9 @@ df_sims <- array(rep(NaN), dim = c(0, length(name_df)))
 colnames(df_sims) <- name_df
 
 # Create raster
-r1 <- raster(nrows = 1000, ncols = 1000, xmn = -4000, xmx = 4000, ymn = -4000, ymx = 4000, 
+r1 <- raster(nrows = 1000, ncols = 1000, xmn = 486700, xmx = 506700, ymn = 5649600, ymx = 5669600, 
              vals = as.factor(rep(1:2,500000)))
-crs(r1) <- "+proj=utm"
+projection(r1) <- "+proj=utm +zone=33 +datum=WGS84"
 
 # Record start time to monitor how long replicates take to compute
 sTime <- Sys.time()
@@ -54,15 +54,14 @@ for(i in 1:length(samp)){
   nReps <- nRep[i]
   
   # Simulate from the movement model ###
-  sim <- simulate(mod, t=st)
+  sim <- simulate(mod, t=st, complete = TRUE)
   df <- data.frame(sim)
-  sp <- df
-  coordinates(sp) <- c("x","y")
-  df$habitat <- as.factor(raster::extract(r1, sp))
+  pts <- df[,6:7]
+  sp <- SpatialPoints(pts, proj4string = CRS("+proj=longlat +datum=WGS84 +no_defs"))
+  df$habitat <- raster::extract(r1, spTransform(sp, CRS(projection(r1))))
   df$count <- ave(df$habitat==df$habitat, df$habitat, FUN=cumsum)
-  df <- df[df$habitat==1 | df$count%%2,]
+  df <- df[df$habitat==1 | df$count %% 2,]
   sim_sub <- subset(sim,row.names(sim) %in% row.names(df))
-  print("Simulated movement track created")
   
   # Fit the movement model to the simulated data
   fit <- ctmm.fit(sim, CTMM=mod, control=list(method="pNewton")) #
@@ -75,8 +74,8 @@ for(i in 1:length(samp)){
   print("UDs created")
   
   # Fit the RSFs ###
-  rsf <- ctmm:::rsf.fit(sim_sub, UD=ud, R=list(test=r1), trace=TRUE, debias=TRUE)
-  rsf_iid <- ctmm:::rsf.fit(sim_sub, UD=ud_iid, R=list(test=r1), trace=TRUE, debias=TRUE, error=0.025)
+  rsf <- ctmm:::rsf.fit(sim_sub, UD=ud, R=list(test=r1), debias=TRUE)
+  rsf_iid <- ctmm:::rsf.fit(sim_sub, UD=ud_iid, R=list(test=r1), debias=TRUE)
   print("Fitted RSF")  
 
   eTime <- Sys.time()
