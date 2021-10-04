@@ -5,8 +5,8 @@
 #SBATCH --nodes=1                  # number of nodes
 #SBATCH --ntasks-per-node=1        # number of tasks (i.e. parallel processes) to be started
 #SBATCH --cpus-per-task=1          # number of cpus required to run the script
-#SBATCH --mem-per-cpu=64G	   # memory required for process
-#SBATCH --array=0-5%5    	   # set number of total simulations and number that can run simultaneously	  
+#SBATCH --mem-per-cpu=96G	   # memory required for process
+#SBATCH --array=1-500%125    	   # set number of total simulations and number that can run simultaneously	  
 
 
 module load gcc
@@ -32,6 +32,6 @@ else
 	echo "sim_no,samp_freq,iid_coef,wrsf_coef,iid_lcl,iid_ucl,wrsf_lcl,wrsf_ucl,runtime" > results/wrsf_sim_results.csv
 fi
 
-Rscript wrsf_sims.R ${list[SLURM_ARRAY_TASK_ID]}     # name of script
+Rscript wrsf_sims.R ${SLURM_ARRAY_TASK_ID}     # name of script
 echo "Test script complete"
 date

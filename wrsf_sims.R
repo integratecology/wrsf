@@ -6,6 +6,7 @@ library(ctmm)
 # Read job number from command line
 args = commandArgs(trailingOnly=TRUE)
 sim_no <- args[1]
+print(sim_no)
 
 # Define the OUF model parameters ###
 # Length of a day in seconds
@@ -18,15 +19,12 @@ sig <- 200000
 trueRngArea <- -2*log(0.05)*pi*sig
 
 # Specify an OUF model for simulation
-mod <- ctmm(tau=c(7*ds,ds/4), isotropic=TRUE, sigma=sig, mu=c(1196500,5711000))
+mod <- ctmm(tau=c(ds,ds/10), isotropic=TRUE, sigma=sig, mu=c(1196500,5711000))
 
 # Simulation with varying sampling interval ####
 
 # Sampling frequencies to quantify
-samp <- c(1, 2, 4, 8, 16, 32, 64)
-
-# Specify the desired number of replicates for each sampling interval
-nRep <- rep(1, 7)
+samp <- c(0.5, 2, 8, 32)
 
 # Create an empty data.frame for saving results
 name_df <- c("sim_no","samp_freq", "iid_coef", "wrsf_coef", "iid_lcl", "iid_ucl", "wrsf_lcl", "wrsf_ucl", "runtime")
@@ -46,13 +44,12 @@ print(sTime)
 for(i in 1:length(samp)){
   
   # Specify variables to manipulate sampling frequency while holding duration constant
-  nd <- 90 # number of days
+  nd <- 100 # number of days
   pd <- samp[i] # number of sampled points per day
   
   # Sampling schedule
   st <- 1:(nd*pd)*(ds/pd) 
-  nReps <- nRep[i]
-  
+    
   # Simulate from the movement model ###
   sim <- simulate(mod, t=st, complete = TRUE)
   df <- data.frame(sim)
@@ -81,21 +78,22 @@ for(i in 1:length(samp)){
   eTime <- Sys.time()
   
   # Extract variables of interest ###
-  samp_freq <- nReps
+  sim_no <- sim_no
+  samp_freq <- pd
   iid_coef <- summary(rsf_iid)$CI[1,2]
   wrsf_coef <- summary(rsf)$CI[1,2]
   iid_lcl <- summary(rsf_iid)$CI[1,1]
   iid_ucl <- summary(rsf_iid)$CI[1,3]
   wrsf_lcl <- summary(rsf)$CI[1,1]
   wrsf_ucl <- summary(rsf)$CI[1,3]
-  runtime <- sTime - eTime
+  runtime <- eTime - sTime
   
   #################################
   # Vector of results to return
   x <- data.frame(sim_no, samp_freq, iid_coef, wrsf_coef, iid_lcl, iid_ucl, wrsf_lcl, wrsf_ucl, runtime)
   
   # Store results in data.frame
-  write.table(x, 'sims_rsf.csv', append=TRUE, row.names=FALSE, col.names=FALSE, sep=',') 
+  write.table(x, 'results/wrsf_sim_results.csv', append=TRUE, row.names=FALSE, col.names=FALSE, sep=',') 
   
   # Print indicators of progress
   print(pd)
