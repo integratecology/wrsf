@@ -24,7 +24,7 @@ mod <- ctmm(tau=c(ds,ds/10), isotropic=TRUE, sigma=sig, mu=c(1196500,5711000))
 # Simulation with varying sampling interval ####
 
 # Sampling frequencies to quantify
-samp <- c(0.5, 2, 8, 32)
+samp <- c(1, 2, 4, 8, 16)
 
 # Create an empty data.frame for saving results
 name_df <- c("sim_no","samp_freq", "iid_coef", "wrsf_coef", "iid_lcl", "iid_ucl", "wrsf_lcl", "wrsf_ucl", "runtime")
