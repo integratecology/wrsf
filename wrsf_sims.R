@@ -86,7 +86,7 @@ for(i in 1:length(samp)){
   iid_ucl <- summary(rsf_iid)$CI[1,3]
   wrsf_lcl <- summary(rsf)$CI[1,1]
   wrsf_ucl <- summary(rsf)$CI[1,3]
-  runtime <- eTime - sTime
+  runtime <- difftime(eTime, sTime, units="mins")
   
   #################################
   # Vector of results to return
