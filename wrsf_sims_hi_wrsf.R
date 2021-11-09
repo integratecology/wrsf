@@ -33,7 +33,7 @@ colnames(df_sims) <- name_df
 
 # Create raster
 r1 <- raster(nrows = 1000, ncols = 1000, xmn = 486700, xmx = 506700, ymn = 5649600, ymx = 5669600, 
-             vals = as.factor(c(rep(1,250000),rep(2,250000))))
+             vals = as.factor(c(rep(1,500000),rep(2,500000))))
 projection(r1) <- "+proj=utm +zone=33 +datum=WGS84"
 
 # Record start time to monitor how long replicates take to compute
