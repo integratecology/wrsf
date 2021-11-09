@@ -1,12 +1,12 @@
 #!/bin/bash
-#SBATCH --job-name=wrsf_sims       # name of the job
+#SBATCH --job-name=wrsf_sims_lw    # name of the job
 #SBATCH --partition=defq           # partition to be used (defq, gpu or intel)
 #SBATCH --time=96:00:00            # walltime (up to 96 hours)
 #SBATCH --nodes=1                  # number of nodes
 #SBATCH --ntasks-per-node=1        # number of tasks (i.e. parallel processes) to be started
 #SBATCH --cpus-per-task=1          # number of cpus required to run the script
 #SBATCH --mem-per-cpu=128G	   # memory required for process
-#SBATCH --array=1-500%125    	   # set number of total simulations and number that can run simultaneously	  
+#SBATCH --array=1-400%100    	   # set number of total simulations and number that can run simultaneously	  
 
 
 module load gcc
@@ -22,16 +22,16 @@ module load R
 cd /bigdata/casus/movement/wrsf   # where executable and data is located
 
 date
-echo "Initiating test script"
+echo "Initiating script"
 
 
-if [ -f results/wrsf_sim_results.csv ]; then
-	echo "wrsf_sim_results.csv already exists! continuing..."
+if [ -f results/wrsf_sim_results_lo_wrsf.csv ]; then
+	echo "Results file already exists! continuing..."
 else
-	echo "creating results file wrsf_sim_results.csv"
-	echo "sim_no,samp_freq,iid_coef,wrsf_coef,iid_lcl,iid_ucl,wrsf_lcl,wrsf_ucl,runtime" > results/wrsf_sim_results.csv
+	echo "creating results file wrsf_sim_results_lo_wrsf.csv"
+	echo "sim_no,samp_freq,wrsf_coef,wrsf_lcl,wrsf_ucl,runtime" > results/wrsf_sim_results_lo_wrsf.csv
 fi
 
-Rscript wrsf_sims.R ${SLURM_ARRAY_TASK_ID}     # name of script
-echo "Test script complete"
+Rscript wrsf_sims_lo_wrsf.R ${SLURM_ARRAY_TASK_ID}     # name of script
+echo "Script complete"
 date
