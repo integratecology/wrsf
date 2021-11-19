@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH --job-name=wrsf_sims_w    # name of the job
 #SBATCH --partition=defq           # partition to be used (defq, gpu or intel)
-#SBATCH --time=96:00:00            # walltime (up to 96 hours)
+#SBATCH --time=24:00:00            # walltime (up to 96 hours)
 #SBATCH --nodes=1                  # number of nodes
 #SBATCH --ntasks-per-node=1        # number of tasks (i.e. parallel processes) to be started
 #SBATCH --cpus-per-task=1          # number of cpus required to run the script
 #SBATCH --mem-per-cpu=16G	   # memory required for process
-#SBATCH --array=1-50%50    	   # set number of total simulations and number that can run simultaneously	  
+#SBATCH --array=1-400%100    	   # set number of total simulations and number that can run simultaneously	  
 
 
 module load gcc
