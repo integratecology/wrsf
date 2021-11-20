@@ -29,7 +29,7 @@ if [ -f results/wrsf_sim_results_hi_wrsf_selection.csv ]; then
 	echo "Results file already exists! continuing..."
 else
 	echo "creating results file wrsf_sim_results_hi_wrsf.csv"
-	echo "sim_no,samp_freq,wrsf_coef,wrsf_lcl,wrsf_ucl,runtime" > results/wrsf_sim_results_hi_wrsf_selection.csv
+	echo "sim_no,samp_freq,wrsf_coef,wrsf_lcl,wrsf_ucl,runtime,count1,count2" > results/wrsf_sim_results_hi_wrsf_selection.csv
 fi
 
 Rscript wrsf_sims_hi_wrsf_selection.R ${SLURM_ARRAY_TASK_ID}     # name of script

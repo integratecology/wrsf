@@ -93,7 +93,7 @@ for(i in 1:length(samp)){
  
   #################################
   # Vector of results to return
-  x <- data.frame(sim_no, samp_dur, wrsf_coef, wrsf_lcl, wrsf_ucl, runtime)
+  x <- data.frame(sim_no, samp_dur, wrsf_coef, wrsf_lcl, wrsf_ucl, runtime, count1, count2)
   
   # Store results in data.frame
   write.table(x, 'results/wrsf_sim_results_hi_wrsf_selection.csv', append=TRUE, row.names=FALSE, col.names=FALSE, sep=',') 
