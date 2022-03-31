@@ -19,22 +19,22 @@ sig <- 200000
 trueRngArea <- -2*log(0.05)*pi*sig
 
 # Specify an OUF model for simulation
-mod <- ctmm(tau=c(ds,ds/6), isotropic=TRUE, sigma=sig, mu=c(1196500,5711000))
+mod <- ctmm(tau=c(ds,ds/6), isotropic=TRUE, sigma=sig, mu=c(0,0))
 
 # Simulation with varying sampling interval ####
 
 # Sampling frequencies to quantify
-samp <- c(0.5, 2, 8, 32)
+samp <- c(1, 2, 4, 8, 16)
 
 # Create an empty data.frame for saving results
-name_df <- c("sim_no","samp_freq", "iid_coef", "wrsf_coef", "iid_lcl", "iid_ucl", "wrsf_lcl", "wrsf_ucl", "runtime")
+name_df <- c("sim_no","samp_freq", "iid_coef", "iid_lcl", "iid_ucl", "runtime")
 df_sims <- array(rep(NaN), dim = c(0, length(name_df)))
 colnames(df_sims) <- name_df
 
 # Create raster
-r1 <- raster(nrows = 1000, ncols = 1000, xmn = 486700, xmx = 506700, ymn = 5649600, ymx = 5669600, 
+r1 <- raster(nrows = 1000, ncols = 1000, xmn = -10000, xmx = 10000, ymn = -10000, ymx = 10000, 
              vals = as.factor(rep(1:2,500000)))
-projection(r1) <- "+proj=utm +zone=33 +datum=WGS84"
+projection(r1) <- "+proj=aeqd +lon_0=0 +lat_0=0 +datum=WGS84 +units=m"
 
 # Record start time to monitor how long replicates take to compute
 sTime <- Sys.time()
@@ -44,7 +44,7 @@ print(sTime)
 for(i in 1:length(samp)){
   
   # Specify variables to manipulate sampling frequency while holding duration constant
-  nd <- 100 # number of days
+  nd <- 90 # number of days
   pd <- samp[i] # number of sampled points per day
   
   # Sampling schedule
@@ -69,7 +69,7 @@ for(i in 1:length(samp)){
   print("UD created")
   
   # Fit the RSFs ###
-  rsf_iid <- ctmm:::rsf.fit(sim_sub, UD=ud_iid, R=list(test=r1), debias=TRUE, error=0.02)
+  rsf_iid <- ctmm:::rsf.fit(sim_sub, UD=ud_iid, R=list(test=r1), debias=TRUE, error=0.04)
   print("Fitted RSF")  
 
   eTime <- Sys.time()

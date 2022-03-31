@@ -1,12 +1,11 @@
 #!/bin/bash
-#SBATCH --job-name=wrsf_sims_w    # name of the job
+#SBATCH --job-name=serval          # name of the job
 #SBATCH --partition=defq           # partition to be used (defq, gpu or intel)
 #SBATCH --time=96:00:00            # walltime (up to 96 hours)
 #SBATCH --nodes=1                  # number of nodes
 #SBATCH --ntasks-per-node=1        # number of tasks (i.e. parallel processes) to be started
 #SBATCH --cpus-per-task=1          # number of cpus required to run the script
-#SBATCH --mem-per-cpu=128G	   # memory required for process
-#SBATCH --array=1-400%125    	   # set number of total simulations and number that can run simultaneously	  
+#SBATCH --mem-per-cpu=128G         # memory required for process
 
 
 module load gcc
@@ -26,13 +25,14 @@ date
 echo "Initiating script"
 
 
-if [ -f results/final/wrsf_sim_results_hi_wrsf.csv ]; then
-	echo "Results file already exists! continuing..."
+if [ -f results/final/empirical_results.csv ]; then
+        echo "Results file already exists! continuing..."
 else
-	echo "creating results file wrsf_sim_results_hi_wrsf.csv"
-	echo "sim_no,samp_freq,wrsf_coef,wrsf_lcl,wrsf_ucl,runtime" > results/final/wrsf_sim_results_hi_wrsf.csv
+        echo "creating results file empirical_results.csv"
+        echo "species,iid_pest,iid_plcl,iid_pucl,iid_uest,iid_ulcl,iid_uucl,w_pest,w_plcl,w_pucl,w_uest,w_ulcl,w_uucl" > results/final/empirical_results.csv
 fi
 
-Rscript wrsf_sims_hi_wrsf.R ${SLURM_ARRAY_TASK_ID}     # name of script
+Rscript serval_example.R  # name of script
 echo "Script complete"
 date
+
