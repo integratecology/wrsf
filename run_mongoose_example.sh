@@ -5,7 +5,7 @@
 #SBATCH --nodes=1                  # number of nodes
 #SBATCH --ntasks-per-node=1        # number of tasks (i.e. parallel processes) to be started
 #SBATCH --cpus-per-task=1          # number of cpus required to run the script
-#SBATCH --mem-per-cpu=128G         # memory required for process
+#SBATCH --mem-per-cpu=32G         # memory required for process
 
 
 module load gcc
