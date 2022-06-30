@@ -19,12 +19,12 @@ sig <- 200000
 trueRngArea <- -2*log(0.05)*pi*sig
 
 # Specify an OUF model for simulation
-mod <- ctmm(tau=c(ds,ds/6), isotropic=TRUE, sigma=sig, mu=c(0,0))
+mod <- ctmm(tau=c(ds,ds*2), isotropic=TRUE, sigma=sig, mu=c(0,0))
 
 # Simulation with varying sampling interval ####
 
 # Sampling frequencies to quantify
-samp <- c(0.5, 2, 8, 32, 128, 512)
+samp <- c(4, 8, 16, 32, 64, 128, 256, 512)
 
 # Create an empty data.frame for saving results
 name_df <- c("sim_no","samp_freq", "wrsf_coef", "wrsf_lcl", "wrsf_ucl", "runtime")
