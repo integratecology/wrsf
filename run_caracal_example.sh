@@ -25,11 +25,11 @@ date
 echo "Initiating script"
 
 
-if [ -f results/final/empirical_results.csv ]; then
+if [ -f results/empirical_results.csv ]; then
         echo "Results file already exists! continuing..."
 else
         echo "creating results file empirical_results.csv"
-        echo "species,iid_pest,iid_plcl,iid_pucl,iid_uest,iid_ulcl,iid_uucl,w_pest,w_plcl,w_pucl,w_uest,w_ulcl,w_uucl" > results/final/empirical_results.csv
+        echo "species,iid_pest,iid_plcl,iid_pucl,iid_uest,iid_ulcl,iid_uucl,w_pest,w_plcl,w_pucl,w_uest,w_ulcl,w_uucl" > results/empirical_results.csv
 fi
 
 Rscript caracal_example.R  # name of script

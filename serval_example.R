@@ -39,7 +39,7 @@ urban@data@values <- as.logical(urban@data@values)
 
 # Weighted resource selection function with two habitat covariates
 rsf_w <- ctmm:::rsf.fit(l, UD=ud_w, R=list(plantation=plantation,urban=urban), 
-                              debias=TRUE, error=0.02)
+                              debias=TRUE, error=0.01)
 
 summary(rsf_w)
 
@@ -48,7 +48,7 @@ ctmm_iid <- ctmm.fit(l,CTMM=ctmm(isotropic=TRUE))
 ud_iid <- akde(l,ctmm_iid)
 
 rsf_iid <- ctmm:::rsf.fit(l, UD=ud_iid, R=list(plantation=plantation,urban=urban), 
-                          debias=TRUE, error=0.02)
+                          debias=TRUE, error=0.01)
 summary(rsf_iid)
 
 # Create variables to populate data.frame
@@ -70,6 +70,6 @@ w_uucl <- summary(rsf_w)$CI[2,3]
 x <- data.frame(species,iid_pest,iid_plcl,iid_pucl,iid_uest,iid_ulcl,iid_uucl,w_pest,w_plcl,w_pucl,w_uest,w_ulcl,w_uucl)
   
 # Store results in data.frame
-write.table(x, 'results/final/empirical_results.csv', append=TRUE, row.names=FALSE, col.names=FALSE, sep=',') 
+write.table(x, 'results/empirical_results.csv', append=TRUE, row.names=FALSE, col.names=FALSE, sep=',') 
 
 print("Done!")
