@@ -68,7 +68,9 @@ for(i in 1:length(samp)){
   df2$habitat <- raster::extract(r1, sp2)
    
   # Fit the movement model to the simulated data
-  fit <- ctmm.fit(sim_sub, CTMM=mod, control=list(method="pNewton")) #
+  svf <- variogram(sim_sub)
+  guess <- ctmm.guess(sim_sub, variogram=svf, interactive=FALSE)
+  fit <- ctmm.select(sim_sub, guess, trace=2) #
   print("Fitted movement model")
   
   # Calculate the UDs ###

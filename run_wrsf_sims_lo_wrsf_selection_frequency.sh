@@ -20,7 +20,7 @@ ldd /home/alston92/R/x86_64-pc-linux-gnu-library/3.6/rgdal/libs/rgdal.so
 
 module load R
 
-cd /bigdata/casus/movement/wrsf   # where executable and data is located
+cd /home/alston92/proj/wrsf   # where executable and data is located
 
 date
 echo "Initiating script"
