@@ -19,7 +19,7 @@ sig <- 200000
 trueRngArea <- -2*log(0.05)*pi*sig
 
 # Specify an OUF model for simulation
-mod <- ctmm(tau=c(ds,ds/6), isotropic=TRUE, sigma=sig, mu=c(0,0))
+mod <- ctmm(tau=c(ds,ds*2), isotropic=TRUE, sigma=sig, mu=c(0,0))
 
 # Simulation with varying sampling interval ####
 
@@ -32,9 +32,10 @@ df_sims <- array(rep(NaN), dim = c(0, length(name_df)))
 colnames(df_sims) <- name_df
 
 # Create raster
-r1 <- raster(nrows = 1000, ncols = 1000, xmn = -10000, xmx = 10000, ymn = -10000, ymx = 10000,
+r1 <- raster(nrows = 1000, ncols = 1000, 
+             xmn = -0.05, xmx = 0.05, ymn = -0.05, ymx = 0.05,
              vals = as.factor(c(rep(1,500000),rep(2,500000))))
-projection(r1) <- "+proj=aeqd +lon_0=0 +lat_0=0 +datum=WGS84 +units=m"
+projection(r1) <- "+proj=longlat +datum=WGS84 +nodefs"
 
 # Record start time to monitor how long replicates take to compute
 print(Sys.time())
@@ -61,8 +62,8 @@ for(i in 1:length(samp)){
   
   # Fit the movement model to the simulated data
   fit_iid <- ctmm.fit(sim, CTMM=ctmm(isotropic=TRUE), control=list(method="pNewton")) #
-  print("Fitted movement model")
-  
+  print("Fitted movement model")  
+
   # Calculate the UDs ###
   ud_iid <- akde(sim_sub, fit_iid)
   print("UD created")
@@ -70,7 +71,7 @@ for(i in 1:length(samp)){
   # Fit the RSFs ###
   sTime <- Sys.time()
   
-  rsf_iid <- ctmm:::rsf.fit(sim_sub, UD=ud_iid, R=list(test=r1), debias=TRUE, error=0.04)
+  rsf_iid <- ctmm:::rsf.fit(sim_sub, UD=ud_iid, R=list(test=r1), debias=TRUE, error=0.01, integrator="Riemann")
   print("Fitted RSF")  
 
   eTime <- Sys.time()
@@ -88,7 +89,7 @@ for(i in 1:length(samp)){
   x <- data.frame(sim_no, samp_freq, iid_coef, iid_lcl, iid_ucl, runtime)
   
   # Store results in data.frame
-  write.table(x, 'results/final/wrsf_sim_results_hi_iid.csv', append=TRUE, row.names=FALSE, col.names=FALSE, sep=',') 
+  write.table(x, 'results/wrsf_sim_results_hi_iid.csv', append=TRUE, row.names=FALSE, col.names=FALSE, sep=',') 
   
   # Print indicators of progress
   print(pd)
