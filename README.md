@@ -1,6 +1,6 @@
 # wrsf
-Repository for code underlying weighted RSF manuscript
+Repository for code underlying [weighted RSF manuscript](https://doi.org/10.1101/2022.04.21.489059)
 
-run_wrsf_sims.sh: bash script for running simulations on hemera
+Analyses are conducted in R (files ending in ".R")
 
-wrsf_sims.R: R script that simulates movement data with habitat-specific location failures, then parameterizes IID and weighted RSFs
+Files ending in ".sh" are bash scripts used for running R scripts on an HPC (likely necessary for IID RSFs)
