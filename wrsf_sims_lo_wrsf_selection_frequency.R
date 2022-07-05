@@ -24,7 +24,7 @@ mod <- ctmm(tau=c(ds,ds*2), isotropic=TRUE, sigma=sig, mu=c(0,0))
 # Simulation with varying sampling interval ####
 
 # Sampling frequencies to quantify
-samp <- c(4, 8, 16, 32, 64, 128, 256, 512)
+samp <- c(4, 8, 16, 32, 64, 128, 256)
 
 # Create an empty data.frame for saving results
 name_df <- c("sim_no","samp_freq", "wrsf_coef", "wrsf_lcl", "wrsf_ucl", "runtime")
@@ -78,7 +78,7 @@ for(i in 1:length(samp)){
   print("UD created")
   
   # Fit the RSFs ###
-  rsf <- ctmm:::rsf.fit(sim_sub, UD=ud, R=list(test=r1), debias=TRUE, error=0.01)
+  rsf <- ctmm:::rsf.fit(sim_sub, UD=ud, R=list(test=r1), debias=TRUE, error=0.01, interpolated=FALSE, integrator="Riemann")
   print("Fitted RSF")  
 
   eTime <- Sys.time()
