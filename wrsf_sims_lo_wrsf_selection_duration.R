@@ -19,12 +19,12 @@ sig <- 200000
 trueRngArea <- -2*log(0.05)*pi*sig
 
 # Specify an OUF model for simulation
-mod <- ctmm(tau=c(ds,ds*2), isotropic=TRUE, sigma=sig, mu=c(0,0))
+mod <- ctmm(tau=c(ds,ds-1), isotropic=TRUE, sigma=sig, mu=c(0,0))
 
 # Simulation with varying sampling interval ####
 
 # Sampling durations to quantify
-samp <- c(4, 8, 16, 32, 64, 128, 256)
+samp <- c(16, 32, 64, 128, 256)
 
 # Create an empty data.frame for saving results
 name_df <- c("sim_no","samp_freq", "wrsf_coef", "wrsf_lcl", "wrsf_ucl", "runtime")
@@ -47,7 +47,7 @@ for(i in 1:length(samp)){
   # Specify variables to manipulate sampling frequency while holding duration constant
   set.seed(sim_no) # unique seed for each simulation run
   nd <- samp[i] # number of days
-  pd <- 100 # number of sampled points per day
+  pd <- 10 # number of sampled points per day
   
   # Sampling schedule
   st <- 1:(nd*pd)*(ds/pd) 
