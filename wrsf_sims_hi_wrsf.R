@@ -19,7 +19,7 @@ sig <- 200000
 trueRngArea <- -2*log(0.05)*pi*sig
 
 # Specify an OUF model for simulation
-mod <- ctmm(tau=c(ds,ds*2), isotropic=TRUE, sigma=sig, mu=c(0,0))
+mod <- ctmm(tau=c(ds,ds-1), isotropic=TRUE, sigma=sig, mu=c(0,0))
 
 # Simulation with varying sampling interval ####
 
@@ -34,7 +34,7 @@ colnames(df_sims) <- name_df
 # Create raster
 r1 <- raster(nrows = 1000, ncols = 1000, 
              xmn = -0.05, xmx = 0.05, ymn = -0.05, ymx = 0.05,
-             vals = as.factor(c(rep(1,500000),rep(2,500000))))
+             vals = as.factor(c(rep("A", 500000),rep("B",500000))))
 projection(r1) <- "+proj=longlat +datum=WGS84 +nodefs"
 
 # Record start time to monitor how long replicates take to compute
@@ -44,13 +44,14 @@ print(Sys.time())
 for(i in 1:length(samp)){
   
   # Specify variables to manipulate sampling frequency while holding duration constant
-  nd <- 90 # number of days
+  nd <- 100 # number of days
   pd <- samp[i] # number of sampled points per day
   
   # Sampling schedule
   st <- 1:(nd*pd)*(ds/pd) 
     
   # Simulate from the movement model ###
+  set.seed(sim_no)
   sim <- simulate(mod, t=st, complete = TRUE)
   df <- data.frame(sim)
   pts <- df[,6:7]

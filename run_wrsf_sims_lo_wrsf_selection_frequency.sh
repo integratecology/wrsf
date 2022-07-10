@@ -5,7 +5,7 @@
 #SBATCH --nodes=1                  # number of nodes
 #SBATCH --ntasks-per-node=1        # number of tasks (i.e. parallel processes) to be started
 #SBATCH --cpus-per-task=1          # number of cpus required to run the script
-#SBATCH --mem-per-cpu=4G	   # memory required for process
+#SBATCH --mem-per-cpu=8G	   # memory required for process
 #SBATCH --array=1-400%100    	   # set number of total simulations and number that can run simultaneously	  
 
 
@@ -30,7 +30,7 @@ if [ -f results/wrsf_sim_results_lo_wrsf_selection_frequency.csv ]; then
 	echo "Results file already exists! continuing..."
 else
 	echo "creating results file wrsf_sim_results_lo_wrsf_selection_frequency.csv"
-	echo "sim_no,samp_freq,wrsf_coef,wrsf_lcl,wrsf_ucl,area,area_lcl,area_ucl,true_area,habitat1,habitat2,runtime" > results/wrsf_sim_results_lo_wrsf_selection.csv
+	echo "sim_no,samp_freq,wrsf_coef,wrsf_lcl,wrsf_ucl,area,area_lcl,area_ucl,true_area,habitat1,habitat2,runtime" > results/wrsf_sim_results_lo_wrsf_selection_frequency.csv
 fi
 
 Rscript wrsf_sims_lo_wrsf_selection_frequency.R ${SLURM_ARRAY_TASK_ID}     # name of script
