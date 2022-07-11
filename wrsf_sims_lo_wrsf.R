@@ -19,12 +19,12 @@ sig <- 200000
 trueRngArea <- -2*log(0.05)*pi*sig
 
 # Specify an OUF model for simulation
-mod <- ctmm(tau=c(ds,ds*2), isotropic=TRUE, sigma=sig, mu=c(0,0))
+mod <- ctmm(tau=c(ds,ds-1), isotropic=TRUE, sigma=sig, mu=c(0,0))
 
 # Simulation with varying sampling interval ####
 
 # Sampling frequencies to quantify
-samp <- c(1, 2, 4, 8, 16, 32)
+samp <- c(1, 2, 4, 8, 16)
 
 # Create an empty data.frame for saving results
 name_df <- c("sim_no","samp_freq", "wrsf_coef", "wrsf_lcl", "wrsf_ucl", "runtime")
@@ -34,7 +34,7 @@ colnames(df_sims) <- name_df
 # Create raster
 r1 <- raster(nrows = 1000, ncols = 1000, 
              xmn = -0.05, xmx = 0.05, ymn = -0.05, ymx = 0.05,
-             vals = as.factor(rep(1:2, 500000)))
+             vals = as.factor(rep(c("A","B"), 500000)))
 projection(r1) <- "+proj=longlat +datum=WGS84 +nodefs"
 
 # Record start time to monitor how long replicates take to compute
@@ -45,13 +45,14 @@ print(sTime)
 for(i in 1:length(samp)){
   
   # Specify variables to manipulate sampling frequency while holding duration constant
-  nd <- 90 # number of days
+  nd <- 100 # number of days
   pd <- samp[i] # number of sampled points per day
   
   # Sampling schedule
   st <- 1:(nd*pd)*(ds/pd) 
     
   # Simulate from the movement model ###
+  set.seed(sim_no)
   sim <- simulate(mod, t=st, complete = TRUE)
   df <- data.frame(sim)
   pts <- df[,6:7]
@@ -62,6 +63,7 @@ for(i in 1:length(samp)){
   sim_sub <- subset(sim,row.names(sim) %in% row.names(df))
   
   # Fit the movement model to the simulated data
+  set.seed(sim_no)
   svf <- variogram(sim_sub)
   guess <- ctmm.guess(sim_sub, variogram=svf, interactive=FALSE)
   fit <- ctmm.select(sim_sub, guess, trace=2) #
@@ -72,6 +74,7 @@ for(i in 1:length(samp)){
   print("UD created")
   
   # Fit the RSFs ###
+  set.seed(sim_no)
   rsf <- ctmm:::rsf.fit(sim_sub, UD=ud, R=list(test=r1), debias=TRUE, error=0.01, integrator="Riemann")
   print("Fitted RSF")  
 
