@@ -22,15 +22,14 @@ trueRngArea <- -2*log(0.05)*pi*sig
 mod <- ctmm(tau=c(ds,ds-1), isotropic=TRUE, sigma=sig, mu=c(0,0))
 
 # Simulation with varying sampling interval ####
-
 # Sampling frequencies to quantify
-samp <- c(1, 4, 16, 64, 256)
+samp <- c(2, 4, 8, 16, 32)
 
 # Create raster
-r1 <- raster(nrows = 1000, ncols = 1000, 
-             xmn = -5000, xmx = 5000, ymn = -5000, ymx = 5000,
+r1 <- raster(nrows = 1000, ncols = 1000,
+             xmn = -0.05, xmx = 0.05, ymn = -0.05, ymx = 0.05,
              vals = as.factor(rep(c("A","B"), 500000)))
-projection(r1) <- "+proj=aeqd +lon_0=0 +lat_0=0 +datum=WGS84"
+projection(r1) <- "+proj=longlat +datum=WGS84 +nodefs"
 
 # Record start time to monitor how long replicates take to compute
 sTime <- Sys.time()
@@ -49,27 +48,28 @@ for(i in 1:length(samp)){
     
   # Simulate from the movement model ###
   set.seed(sim_no)
-  sim <- simulate(mod, t=st, complete = TRUE)
+  sim <- simulate(mod, t=st, complete=TRUE)
 
   # Create a new track with habitat selection (shift half of points in movement track right by 0.0001 degrees)
-  sim_sub <- sim
-  
-  df <- data.frame(sim_sub)
-  pts <- df[,2:3]
+  df <- data.frame(sim)
+  df <- df[,6:8]
+  pts <- df[,1:2]
   sp <- sp::SpatialPoints(pts, proj4string = sp::CRS(projection(r1)))
   df$habitat <- raster::extract(r1, sp::spTransform(sp, sp::CRS(projection(r1))))
   df$count <- ave(df$habitat==df$habitat, df$habitat, FUN=cumsum)
-  df <- df[df$habitat==2 & df$count %% 2,]
-  sim_sub$longitude <- ifelse(row.names(sim) %in% row.names(df)==TRUE, sim_sub$longitude + 0.00009009009, sim_sub$longitude)
+  df2 <- df[df$habitat==2 & df$count %% 2,]
+  df$longitude <- ifelse(row.names(df) %in% row.names(df2)==TRUE, df$longitude + 0.0001, df$longitude)
+  
+  pts2 <- df[,1:2]
+  sp <- sp::SpatialPoints(pts2, proj4string = sp::CRS(projection(r1)))
+  df$habitat <- raster::extract(r1, sp::spTransform(sp, sp::CRS(projection(r1))))
+  df$count <- ave(df$habitat==df$habitat, df$habitat, FUN=cumsum)
+  head(df, 20)
+  print(paste0("There are ", max(df$count[df$habitat==1]), " locations in Habitat A and ", max(df$count[df$habitat==2]), " locations in Habitat B"))
+  df$individual.local.identifier <- sim_no
+  
+  sim_sub <- as.telemetry(df)
 
-  # Check number of points in each habitat
-  pts2 <- sim_sub[,6:7]
-  sp <- sp::SpatialPoints(pts2, proj4string = sp::CRS("+proj=longlat +datum=WGS84 +no_defs"))
-  sim_sub$habitat <- raster::extract(r1, sp::spTransform(sp, sp::CRS(projection(r1))))
-  sim_sub$count <- ave(sim_sub$habitat==sim_sub$habitat, sim_sub$habitat, FUN=cumsum)
-  head(sim_sub, 20)
-  print(paste0("There are ", max(sim_sub$count[sim_sub$habitat==1]), " locations in Habitat A and ", max(sim_sub$count[sim_sub$habitat==2]), " locations in Habitat B"))
-   
   # Fit the movement model to the simulated data
   svf <- variogram(sim_sub)
   guess <- ctmm.guess(sim_sub, variogram=svf, interactive=FALSE)
@@ -81,9 +81,9 @@ for(i in 1:length(samp)){
   summary(ud)
   
   # Fit the RSFs ###
+  set.seed(sim_no)
   rsf <- ctmm:::rsf.fit(sim_sub, UD=ud, R=list(test=r1), debias=TRUE, error=0.01, integrator="Riemann", interpolate=FALSE)
-  summary(rsf) 
-
+  summary(rsf)
   eTime <- Sys.time()
   
   # Extract variables of interest ###
@@ -108,7 +108,7 @@ for(i in 1:length(samp)){
   write.table(x, 'results/wrsf_sim_results_lo_wrsf_selection_frequency.csv', append=TRUE, row.names=FALSE, col.names=FALSE, sep=',') 
   
   # Print indicators of progress
-  print(pd)
+  print(nd)
   print(eTime)
   print(eTime - sTime)
   
