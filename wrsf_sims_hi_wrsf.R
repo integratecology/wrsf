@@ -48,29 +48,34 @@ for(i in 1:length(samp)){
   # Simulate from the movement model ###
   set.seed(sim_no)
   sim <- simulate(mod, t=st, complete = TRUE)
+  
   df <- data.frame(sim)
-  pts <- df[,6:7]
-  sp <- SpatialPoints(pts, proj4string = CRS("+proj=longlat +datum=WGS84 +no_defs"))
+  df <- df[,6:8]
+  pts <- df[,1:2]
+  sp <- SpatialPoints(pts, proj4string = CRS(projection(r1)))
   df$habitat <- raster::extract(r1, spTransform(sp, CRS(projection(r1))))
   df$count <- ave(df$habitat==df$habitat, df$habitat, FUN=cumsum)
-  df <- df[df$habitat==1 | df$count %% 2,]
-  sim_sub <- subset(sim,row.names(sim) %in% row.names(df))
-  
+  df2 <- df[df$habitat==1 | df$count %% 2,]
+  df <- subset(df,row.names(df) %in% row.names(df2))
+  df$individual.local.identifier <- sim_no  
+
+  sim_sub <- as.telemetry(df)
+
   # Fit the movement model to the simulated data
   svf <- variogram(sim_sub)
   guess <- ctmm.guess(sim_sub, variogram=svf, interactive=FALSE)
   fit <- ctmm.select(sim_sub, guess, trace=2) #
-  print("Fitted movement model")  
+  summary(fit)  
 
   # Calculate the UDs ###
   ud <- akde(sim_sub, fit, weights=TRUE)
-  print("UD created")
+  summary(ud)
   
   # Fit the RSFs ###
   sTime <- Sys.time()
 
-  rsf <- ctmm:::rsf.fit(sim_sub, UD=ud, R=list(test=r1), debias=TRUE, error=0.01, integrator="Riemann")
-  print("Fitted RSF")  
+  rsf <- ctmm:::rsf.fit(sim_sub, UD=ud, R=list(test=r1), debias=TRUE, error=0.01, interploate=FALSE, integrator="Riemann")
+  summary(rsf)  
 
   eTime <- Sys.time()
   
