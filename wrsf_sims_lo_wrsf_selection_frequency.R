@@ -26,16 +26,11 @@ mod <- ctmm(tau=c(ds,ds-1), isotropic=TRUE, sigma=sig, mu=c(0,0))
 # Sampling frequencies to quantify
 samp <- c(1, 4, 16, 64, 256)
 
-# Create an empty data.frame for saving results
-name_df <- c("sim_no","samp_freq", "wrsf_coef", "wrsf_lcl", "wrsf_ucl", "runtime")
-df_sims <- array(rep(NaN), dim = c(0, length(name_df)))
-colnames(df_sims) <- name_df
-
 # Create raster
 r1 <- raster(nrows = 1000, ncols = 1000, 
-             xmn = -0.05, xmx = 0.05, ymn = -0.05, ymx = 0.05,
+             xmn = -5000, xmx = 5000, ymn = -5000, ymx = 5000,
              vals = as.factor(rep(c("A","B"), 500000)))
-projection(r1) <- "+proj=longlat +datum=WGS84 +nodefs"
+projection(r1) <- "+proj=aeqd +lon_0=0 +lat_0=0 +datum=WGS84"
 
 # Record start time to monitor how long replicates take to compute
 sTime <- Sys.time()
@@ -46,7 +41,7 @@ for(i in 1:length(samp)){
   
   # Specify variables to manipulate sampling frequency while holding duration constant
   set.seed(sim_no) # unique seed for each simulation run
-  nd <- 100 # number of days
+  nd <- 64 # number of days
   pd <- samp[i] # number of sampled points per day
   
   # Sampling schedule
@@ -60,12 +55,12 @@ for(i in 1:length(samp)){
   sim_sub <- sim
   
   df <- data.frame(sim_sub)
-  pts <- df[,6:7]
-  sp <- sp::SpatialPoints(pts, proj4string = sp::CRS("+proj=longlat +datum=WGS84 +no_defs"))
+  pts <- df[,2:3]
+  sp <- sp::SpatialPoints(pts, proj4string = sp::CRS(projection(r1)))
   df$habitat <- raster::extract(r1, sp::spTransform(sp, sp::CRS(projection(r1))))
   df$count <- ave(df$habitat==df$habitat, df$habitat, FUN=cumsum)
   df <- df[df$habitat==2 & df$count %% 2,]
-  sim_sub$longitude <- ifelse(row.names(sim) %in% row.names(df)==TRUE, sim_sub$longitude + 0.0001, sim_sub$longitude)
+  sim_sub$longitude <- ifelse(row.names(sim) %in% row.names(df)==TRUE, sim_sub$longitude + 0.00009009009, sim_sub$longitude)
 
   # Check number of points in each habitat
   pts2 <- sim_sub[,6:7]
@@ -79,15 +74,15 @@ for(i in 1:length(samp)){
   svf <- variogram(sim_sub)
   guess <- ctmm.guess(sim_sub, variogram=svf, interactive=FALSE)
   fit <- ctmm.select(sim_sub, guess, trace=2) #
-  print("Fitted movement model")
+  summary(fit)
   
   # Calculate the UDs ###
   ud <- akde(sim_sub, fit, weights=TRUE)
-  print("UD created")
+  summary(ud)
   
   # Fit the RSFs ###
   rsf <- ctmm:::rsf.fit(sim_sub, UD=ud, R=list(test=r1), debias=TRUE, error=0.01, integrator="Riemann", interpolate=FALSE)
-  print("Fitted RSF")  
+  summary(rsf) 
 
   eTime <- Sys.time()
   

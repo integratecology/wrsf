@@ -18,7 +18,7 @@ export LD_LIBRARY_PATH="/home/alston92/software/proj-8.0.1/lib:$LD_LIBRARY_PATH"
 ldd /home/alston92/R/x86_64-pc-linux-gnu-library/3.6/terra/libs/terra.so
 ldd /home/alston92/R/x86_64-pc-linux-gnu-library/3.6/rgdal/libs/rgdal.so
 
-module load R
+module load R/3.6.3
 
 cd /home/alston92/proj/wrsf   # where executable and data is located
 

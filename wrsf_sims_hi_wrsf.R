@@ -26,11 +26,6 @@ mod <- ctmm(tau=c(ds,ds-1), isotropic=TRUE, sigma=sig, mu=c(0,0))
 # Sampling frequencies to quantify
 samp <- c(1, 2, 4, 8, 16)
 
-# Create an empty data.frame for saving results
-name_df <- c("sim_no","samp_freq", "wrsf_coef", "wrsf_lcl", "wrsf_ucl", "runtime")
-df_sims <- array(rep(NaN), dim = c(0, length(name_df)))
-colnames(df_sims) <- name_df
-
 # Create raster
 r1 <- raster(nrows = 1000, ncols = 1000, 
              xmn = -0.05, xmx = 0.05, ymn = -0.05, ymx = 0.05,
