@@ -19,22 +19,18 @@ sig <- 200000
 trueRngArea <- -2*log(0.05)*pi*sig
 
 # Specify an OUF model for simulation
-mod <- ctmm(tau=c(ds,ds*2), isotropic=TRUE, sigma=sig, mu=c(0,0))
+mod <- ctmm(tau=c(ds,ds/3), isotropic=TRUE, sigma=sig, mu=c(0,0))
+mod_iid <- ctmm(isotropic=TRUE, sigma=sig, mu=c(0,0))
 
 # Simulation with varying sampling interval ####
 
 # Sampling frequencies to quantify
 samp <- c(1, 2, 4, 8, 16)
 
-# Create an empty data.frame for saving results
-name_df <- c("sim_no","samp_freq", "iid_coef", "iid_lcl", "iid_ucl", "runtime")
-df_sims <- array(rep(NaN), dim = c(0, length(name_df)))
-colnames(df_sims) <- name_df
-
 # Create raster
 r1 <- raster(nrows = 1000, ncols = 1000, 
              xmn = -0.05, xmx = 0.05, ymn = -0.05, ymx = 0.05,
-             vals = as.factor(rep(1:2, 500000)))
+             vals = as.factor(rep(c("A","B"), 500000)))
 projection(r1) <- "+proj=longlat +datum=WGS84 +nodefs"
 
 # Record start time to monitor how long replicates take to compute
@@ -53,25 +49,30 @@ for(i in 1:length(samp)){
     
   # Simulate from the movement model ###
   sim <- simulate(mod, t=st, complete = TRUE)
+
   df <- data.frame(sim)
-  pts <- df[,6:7]
-  sp <- SpatialPoints(pts, proj4string = CRS("+proj=longlat +datum=WGS84 +no_defs"))
+  df <- df[,6:8]
+  pts <- df[,1:2]
+  sp <- SpatialPoints(pts, proj4string = CRS(projection(r1)))
   df$habitat <- raster::extract(r1, spTransform(sp, CRS(projection(r1))))
   df$count <- ave(df$habitat==df$habitat, df$habitat, FUN=cumsum)
-  df <- df[df$habitat==1 | df$count %% 2,]
-  sim_sub <- subset(sim,row.names(sim) %in% row.names(df))
-  
+  df2 <- df[df$habitat==1 | df$count %% 2,]
+  df <- subset(df,row.names(df) %in% row.names(df2))
+  df$individual.local.identifier <- sim_no  
+
+  sim_sub <- as.telemetry(df)  
+
   # Fit the movement model to the simulated data
-  fit_iid <- ctmm.fit(sim, CTMM=ctmm(isotropic=TRUE), control=list(method="pNewton")) #
-  print("Fitted movement model")  
+  fit_iid <- ctmm.fit(sim_sub, CTMM=mod_iid, control=list(method="pNewton")) #
+  summary(fit_iid)
 
   # Calculate the UDs ###
   ud_iid <- akde(sim_sub, fit_iid)
-  print("UD created")
+  summary(ud_iid)
   
   # Fit the RSFs ###
-  rsf_iid <- ctmm:::rsf.fit(sim_sub, UD=ud_iid, R=list(test=r1), debias=TRUE, error=0.01, integrator="Riemann")
-  print("Fitted RSF")  
+  rsf_iid <- ctmm:::rsf.fit(sim_sub, UD=ud_iid, R=list(test=r1), debias=TRUE, error=0.01, interpolate=FALSE, integrator="Riemann")
+  summary(rsf_iid)  
 
   eTime <- Sys.time()
   

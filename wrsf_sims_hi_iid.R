@@ -19,7 +19,7 @@ sig <- 200000
 trueRngArea <- -2*log(0.05)*pi*sig
 
 # Specify an OUF model for simulation
-mod <- ctmm(tau=c(ds,ds-1), isotropic=TRUE, sigma=sig, mu=c(0,0))
+mod <- ctmm(tau=c(ds,ds/3), isotropic=TRUE, sigma=sig, mu=c(0,0))
 mod_iid <- ctmm(isotropic=TRUE, sigma=sig, mu=c(0,0))
 
 # Simulation with varying sampling interval ####
@@ -40,7 +40,7 @@ print(Sys.time())
 for(i in 1:length(samp)){
   
   # Specify variables to manipulate sampling frequency while holding duration constant
-  nd <- 100 # number of days
+  nd <- 90 # number of days
   pd <- samp[i] # number of sampled points per day
   
   # Sampling schedule
