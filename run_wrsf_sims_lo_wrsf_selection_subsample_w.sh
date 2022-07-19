@@ -6,7 +6,6 @@
 #SBATCH --ntasks-per-node=1        # number of tasks (i.e. parallel processes) to be started
 #SBATCH --cpus-per-task=1          # number of cpus required to run the script
 #SBATCH --mem-per-cpu=8G	   # memory required for process
-#SBATCH --array=1-50%50    	   # set number of total simulations and number that can run simultaneously	  
 
 
 module load gcc
@@ -26,13 +25,13 @@ date
 echo "Initiating script"
 
 
-if [ -f results/wrsf_sim_results_lo_wrsf_selection_subsample.csv ]; then
+if [ -f results/wrsf_sim_results_lo_wrsf_selection_subsample_w.csv ]; then
 	echo "Results file already exists! continuing..."
 else
 	echo "creating results file"
-	echo "sim_no,est,lcl,ucl" > results/wrsf_sim_results_lo_wrsf_selection_subsample.csv
+	echo "sim_no,est,lcl,ucl" > results/wrsf_sim_results_lo_wrsf_selection_subsample_w.csv
 fi
 
-Rscript wrsf_sims_lo_wrsf_selection_subsample.R ${SLURM_ARRAY_TASK_ID}     # name of script
+Rscript wrsf_sims_lo_wrsf_selection_subsample_w.R # name of script
 echo "Script complete"
 date

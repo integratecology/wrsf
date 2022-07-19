@@ -5,8 +5,7 @@ library(ctmm)
 
 # ANALYSIS ####
 # Read job number from command line
-args = commandArgs(trailingOnly=TRUE)
-sim_no <- as.numeric(args[1])
+sim_no <- 1
 print(sim_no)
 
 # Create raster
@@ -17,20 +16,20 @@ projection(r1) <- "+proj=longlat +datum=WGS84 +nodefs"
 
 df <- fread("/home/alston92/proj/wrsf/data/subsample_sim.csv")
 
-sample <- seq(sim_no, length(df$timestamp), by=round(length(df$timestamp)/64)) # ESS = 64
-
-df <- df[sample,]
-
 sim_sub <- as.telemetry(df)
 
-# IID RSF
-fit <- ctmm.fit(sim_sub, CTMM=ctmm(isotropic=TRUE))
+# Fit the movement model to the simulated data
+svf <- variogram(sim_sub)
+guess <- ctmm.guess(sim_sub, variogram=svf, interactive=FALSE)
+fit <- ctmm.select(sim_sub, guess, trace=2) #
+summary(fit)
   
 # Calculate the UDs ###
 ud <- akde(sim_sub, fit, weights=TRUE)
 summary(ud)
   
 # Fit the RSFs ###
+set.seed(sim_no)
 rsf <- ctmm:::rsf.fit(sim_sub, UD=ud, R=list(test=r1), debias=TRUE, error=0.01, integrator="Riemann", interpolate=FALSE)
 summary(rsf)
   
@@ -45,7 +44,7 @@ ucl <- summary(rsf)$CI[1,3]
 x <- data.frame(sim_no, est, lcl, ucl)
   
 # Store results in data.frame
-write.table(x, 'results/wrsf_sim_results_lo_wrsf_selection_subsample.csv', append=TRUE, row.names=FALSE, col.names=FALSE, sep=',') 
+write.table(x, 'results/wrsf_sim_results_lo_wrsf_selection_subsample_w.csv', append=TRUE, row.names=FALSE, col.names=FALSE, sep=',') 
   
 # Print indicators of progress
 print("Done!")
