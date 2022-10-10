@@ -1,5 +1,5 @@
 # Metadata for Alston, Fleming, et al. 2023 Methods in Ecology and Evolution
-Repository for code underlying the manuscript [Preprint](https://doi.org/10.1101/2022.04.21.489059)
+Repository for code underlying the Alston, Fleming et al. Methods in Ecology and Evolution [Preprint](https://doi.org/10.1101/2022.04.21.489059)
 
 Files ending in ".R" are R scripts used in simulations and empirical examples
 
