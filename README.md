@@ -13,6 +13,7 @@ File names denote their contents:
 2. KZN_2017_Landuse_latlong.tif: remotely sensed land cover data
 3. mongoose_example.csv: movement data for a mongoose
 4. serval_example.csv: movement data for a serval
+5. subsample_sim.csv: a simulated movement track
 
 The movement data (1, 3, and 4 above) can only be used to replicate the results presented in Alston, Fleming, et al. Methods in Ecology and Evolution. Any other use of this data requires the written permission of Colleen Downs and Tharmalingam Ramesh (the caracal and serval data) or Colleen Downs and Jarryd Streicher (the mongoose data).
 
